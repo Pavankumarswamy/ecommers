@@ -11,45 +11,45 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Google Sheets Setup
+// Authenticate with Google using service account
 const auth = new google.auth.GoogleAuth({
-  keyFile: 'service_account.json',
-  scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+  credentials: require('./cetmock-app-7d6b40681a58.json'),
+  scopes: ['https://www.googleapis.com/auth/spreadsheets']
 });
+
 const SPREADSHEET_ID = '1K0SHF2Lmm7iFNwGTAZ4RqvM0vFfsu9j1EXNpxH0CYu8';
 
-// Utility: Ensure sheet exists
-async function ensureSheetExists(sheets, sheetName) {
-  const existing = await sheets.spreadsheets.get({
+// Check or create sheet
+async function ensureSheetExists(sheets, name) {
+  const res = await sheets.spreadsheets.get({
     spreadsheetId: SPREADSHEET_ID,
     fields: 'sheets.properties.title',
   });
-  const titles = existing.data.sheets.map(s => s.properties.title);
-  if (!titles.includes(sheetName)) {
+  const existing = res.data.sheets.map(s => s.properties.title);
+  if (!existing.includes(name)) {
     await sheets.spreadsheets.batchUpdate({
       spreadsheetId: SPREADSHEET_ID,
       resource: {
-        requests: [{ addSheet: { properties: { title: sheetName } } }],
-      },
+        requests: [{ addSheet: { properties: { title: name } } }],
+      }
     });
   }
 }
 
-// Utility: Append row to sheet
-async function appendToSheet(sheetName, row) {
+// Append values
+async function appendToSheet(sheet, values) {
   const client = await auth.getClient();
   const sheets = google.sheets({ version: 'v4', auth: client });
-  await ensureSheetExists(sheets, sheetName);
+  await ensureSheetExists(sheets, sheet);
   await sheets.spreadsheets.values.append({
     spreadsheetId: SPREADSHEET_ID,
-    range: `${sheetName}!A1`,
+    range: `${sheet}!A1`,
     valueInputOption: 'USER_ENTERED',
-    resource: { values: [row] },
+    resource: { values: [values] }
   });
 }
 
-// API Endpoints
-
+// Routes
 app.post('/api/register', async (req, res) => {
   const { name, email, password } = req.body;
   if (!name || !email || !password)
@@ -132,11 +132,12 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
-// Serve frontend fallback
+// Serve frontend for any unknown route
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+// Start server
 app.listen(PORT, () => {
   console.log(`✅ Server running on port ${PORT}`);
 });
