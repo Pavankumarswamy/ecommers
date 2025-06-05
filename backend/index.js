@@ -16,7 +16,7 @@ if (!SPREADSHEET_ID) {
 }
 
 app.use(cors({
-  origin: ['https://ecommers-ula5.onrender.com', 'http://localhost:3000'],
+  origin: ['https://workmitra.onrender.com', 'http://localhost:3000'],
   methods: ['GET', 'POST'],
   allowedHeaders: ['Content-Type'],
 }));
