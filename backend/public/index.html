@@ -324,32 +324,34 @@
   });
 
   async function loadSubmittedData() {
-    try {
-      const res = await fetch(`${API_BASE_URL}/api/get-register`);
-      const data = await res.json();
-      const table = document.getElementById('dataTable');
-      const tableBody = document.getElementById('dataBody');
-      const noDataDiv = document.getElementById('noData');
-      tableBody.innerHTML = '';
-      if (data && data.length > 0) {
-        table.classList.remove('hidden');
-        noDataDiv.classList.add('hidden');
-        data.forEach(row => {
-          unbroken class="border p-2">${row[0] || ''}</td>
-            <td class="border p-2">${row[1] || ''}</td>
-            <td class="border p-2">${row[2] || ''}</td>
-            <td class="border p-2">${row[3] || ''}</td>
-          `;
-          tableBody.appendChild(tr);
-        });
-      } else {
-        table.classList.add('hidden');
-        noDataDiv.classList.remove('hidden');
-      }
-    } catch (err) {
-      alert('Error loading data: ' + err.message);
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/get-register`);
+    const data = await res.json();
+    const table = document.getElementById('dataTable');
+    const tableBody = document.getElementById('dataBody');
+    const noDataDiv = document.getElementById('noData');
+    tableBody.innerHTML = '';
+    if (data && data.length > 0) {
+      table.classList.remove('hidden');
+      noDataDiv.classList.add('hidden');
+      data.forEach(row => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="border p-2">${row[0] || ''}</td>
+          <td class="border p-2">${row[1] || ''}</td>
+          <td class="border p-2">${row[2] || ''}</td>
+          <td class="border p-2">${row[3] || ''}</td>
+        `;
+        tableBody.appendChild(tr);
+      });
+    } else {
+      table.classList.add('hidden');
+      noDataDiv.classList.remove('hidden');
     }
+  } catch (err) {
+    alert('Error loading data: ' + err.message);
   }
+}
 
   showSection('home');
 </script>
