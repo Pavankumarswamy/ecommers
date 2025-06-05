@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const { google } = require('googleapis');
 const path = require('path');
+const axios = require('axios'); // For diagnostic requests
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -11,7 +12,7 @@ if (!SPREADSHEET_ID) {
   throw new Error('Missing SPREADSHEET_ID environment variable');
 }
 
-// Service account credentials (for testing only; move to environment variables in production)
+// Service account credentials (testing only; move to environment variables in production)
 const credentials = {
   type: 'service_account',
   project_id: 'cetmock-app',
@@ -45,9 +46,42 @@ const auth = new google.auth.GoogleAuth({
   scopes: ['https://www.googleapis.com/auth/spreadsheets'],
 });
 
+// Diagnostic route to test Google API connectivity and time
+app.get('/api/health', async (req, res) => {
+  try {
+    const serverTime = new Date();
+    const googleResponse = await axios.get('https://sheets.googleapis.com/v4/discovery', {
+      headers: { 'User-Agent': 'workmitra/1.0' },
+    });
+    const googleTime = googleResponse.headers.date ? new Date(googleResponse.headers.date) : null;
+    res.json({
+      status: 'ok',
+      googleApiReachable: true,
+      serverTime: serverTime.toISOString(),
+      googleTime: googleTime ? googleTime.toISOString() : 'N/A',
+      timeDiffMs: googleTime ? serverTime - googleTime : 'N/A',
+      apiResponse: googleResponse.status,
+    });
+  } catch (error) {
+    console.error('Health check error:', {
+      message: error.message,
+      code: error.code,
+      details: error.response?.data,
+      stack: error.stack,
+    });
+    res.status(500).json({
+      status: 'error',
+      googleApiReachable: false,
+      error: error.message,
+      serverTime: new Date().toISOString(),
+    });
+  }
+});
+
 // Check or create sheet
 async function ensureSheetExists(sheets, name) {
   try {
+    console.log(`Checking sheet ${name} for spreadsheet ${SPREADSHEET_ID} @ ${new Date().toISOString()}`);
     const res = await sheets.spreadsheets.get({
       spreadsheetId: SPREADSHEET_ID,
       fields: 'sheets.properties.title',
@@ -60,12 +94,12 @@ async function ensureSheetExists(sheets, name) {
           requests: [{ addSheet: { properties: { title: name } } }],
         },
       });
-      console.log(`Created sheet: ${name}`);
+      console.log(`Created sheet ${name} @ ${new Date().toISOString()}`);
     } else {
       console.log(`Sheet ${name} already exists`);
     }
   } catch (error) {
-    console.error(`Error ensuring sheet ${name} exists:`, {
+    console.error(`Error ensuring sheet ${name}:`, {
       message: error.message,
       code: error.code,
       details: error.errors,
@@ -78,8 +112,9 @@ async function ensureSheetExists(sheets, name) {
 // Append values
 async function appendToSheet(sheet, values) {
   try {
+    const clientTime = new Date();
     const client = await auth.getClient();
-    console.log(`Authenticated client for sheet ${sheet}`);
+    console.log(`Authenticated client for ${sheet} @ ${clientTime.toISOString()}`);
     const sheets = google.sheets({ version: 'v4', auth: client });
     await ensureSheetExists(sheets, sheet);
     await sheets.spreadsheets.values.append({
@@ -88,7 +123,7 @@ async function appendToSheet(sheet, values) {
       valueInputOption: 'USER_ENTERED',
       resource: { values: [values] },
     });
-    console.log(`Successfully appended to sheet: ${sheet}`, values);
+    console.log(`Successfully appended to sheet ${sheet} @ ${new Date().toISOString()}`, values);
   } catch (error) {
     console.error(`Error appending to sheet ${sheet}:`, {
       message: error.message,
@@ -179,8 +214,9 @@ app.post('/api/contact', async (req, res) => {
 
 app.get('/api/get-register', async (req, res) => {
   try {
+    const clientTime = new Date();
     const client = await auth.getClient();
-    console.log('Authenticated client for /api/get-register');
+    console.log(`Authenticated client for get-register @ ${clientTime.toISOString()}`);
     const sheets = google.sheets({ version: 'v4', auth: client });
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: SPREADSHEET_ID,
@@ -201,11 +237,12 @@ app.get('/api/get-register', async (req, res) => {
 app.post('/api/login', async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
-    return res.status(400).json({ error: 'Email and password are required' });
+    return res.status(400).json({ error: 'Email and password required' });
   }
   try {
+    const clientTime = new Date();
     const client = await auth.getClient();
-    console.log('Authenticated client for /api/login');
+    console.log(`Authenticated client for login @ ${clientTime.toISOString()}`);
     const sheets = google.sheets({ version: 'v4', auth: client });
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: SPREADSHEET_ID,
@@ -232,7 +269,7 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`✅ Server running on port ${PORT}`);
-  console.log(`Server time: ${new Date().toISOString()}`);
+  console.log('Server time:', new Date().toISOString());
 });
