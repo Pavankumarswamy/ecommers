@@ -6,38 +6,37 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Enable CORS and JSON parsing
+// Serve frontend
 app.use(cors());
 app.use(bodyParser.json());
-
-// Serve static frontend files from /public
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Google Sheets Auth
+// Google Sheets Setup
 const auth = new google.auth.GoogleAuth({
   keyFile: 'service_account.json',
   scopes: ['https://www.googleapis.com/auth/spreadsheets'],
 });
 const SPREADSHEET_ID = '1K0SHF2Lmm7iFNwGTAZ4RqvM0vFfsu9j1EXNpxH0CYu8';
 
-// Utilities
+// Utility: Ensure sheet exists
 async function ensureSheetExists(sheets, sheetName) {
-  const response = await sheets.spreadsheets.get({
+  const existing = await sheets.spreadsheets.get({
     spreadsheetId: SPREADSHEET_ID,
     fields: 'sheets.properties.title',
   });
-  const sheetsList = response.data.sheets.map(sheet => sheet.properties.title);
-  if (!sheetsList.includes(sheetName)) {
+  const titles = existing.data.sheets.map(s => s.properties.title);
+  if (!titles.includes(sheetName)) {
     await sheets.spreadsheets.batchUpdate({
       spreadsheetId: SPREADSHEET_ID,
       resource: {
-        requests: [{ addSheet: { properties: { title: sheetName } } }]
-      }
+        requests: [{ addSheet: { properties: { title: sheetName } } }],
+      },
     });
   }
 }
 
-async function appendToSheet(sheetName, values) {
+// Utility: Append row to sheet
+async function appendToSheet(sheetName, row) {
   const client = await auth.getClient();
   const sheets = google.sheets({ version: 'v4', auth: client });
   await ensureSheetExists(sheets, sheetName);
@@ -45,11 +44,11 @@ async function appendToSheet(sheetName, values) {
     spreadsheetId: SPREADSHEET_ID,
     range: `${sheetName}!A1`,
     valueInputOption: 'USER_ENTERED',
-    resource: { values: [values] },
+    resource: { values: [row] },
   });
 }
 
-// Endpoints
+// API Endpoints
 
 app.post('/api/register', async (req, res) => {
   const { name, email, password } = req.body;
@@ -133,12 +132,11 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
-// Fallback: serve index.html for all other routes
+// Serve frontend fallback
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Start server
 app.listen(PORT, () => {
-  console.log(`✅ Server running on https://ecommers-ula5.onrender.com${PORT}`);
+  console.log(`✅ Server running on port ${PORT}`);
 });
