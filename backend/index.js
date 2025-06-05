@@ -17,11 +17,12 @@ if (!SPREADSHEET_ID) {
 
 app.use(cors({
   origin: ['https://workmitra.onrender.com', 'http://localhost:3000'],
-  methods: ['GET', 'POST'],
+  methods: ['GET', 'POST', 'OPTIONS'],
   allowedHeaders: ['Content-Type'],
 }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
+
 
 // Authenticate with Google
 const auth = new google.auth.GoogleAuth({
