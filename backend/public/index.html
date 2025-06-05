@@ -1,70 +1,345 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>E-Commerce Website</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 text-gray-900">
-  <!-- Include your full HTML content as in your previous message here -->
+<body class="bg-gray-100">
+  <!-- Navigation -->
+  <nav class="bg-blue-600 p-4 text-white">
+    <div class="container mx-auto flex justify-between items-center">
+      <h1 class="text-xl font-bold">E-Shop</h1>
+      <div>
+        <a href="#" onclick="showSection('home')" class="px-4">Home</a>
+        <a href="#" onclick="showSection('products')" class="px-4">Products</a>
+        <a href="#" onclick="showSection('register')" class="px-4">Register</a>
+        <a href="#" onclick="showSection('contact')" class="px-4">Contact</a>
+        <a href="#" onclick="showSection('about')" class="px-4">About</a>
+        <a href="#" onclick="showSection('offers')" class="px-4">Offers</a>
+        <a href="#" onclick="showSection('blogs')" class="px-4">Blogs</a>
+        <a href="#" onclick="showSection('data')" class="px-4">Submitted Data</a>
+      </div>
+    </div>
+  </nav>
 
-  <!-- Just below everything, include this script to hook up forms -->
+  <!-- Main Content -->
+  <main class="container mx-auto p-4">
+    <!-- Home Section -->
+    <section id="home" class="section">
+      <h2 class="text-2xl font-bold mb-4">Welcome to E-Shop</h2>
+      <p class="mb-4">Browse our products and enjoy shopping!</p>
+    </section>
+
+    <!-- Products Section -->
+    <section id="products" class="section hidden">
+      <h2 class="text-2xl font-bold mb-4">Products</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="border p-4">
+          <h3 class="font-bold">Laptop</h3>
+          <p>High-performance laptop</p>
+          <p>$999</p>
+          <button onclick="buyNow('Laptop')" class="bg-blue-600 text-white p-2 rounded">Buy Now</button>
+        </div>
+        <div class="border p-4">
+          <h3 class="font-bold">Smartphone</h3>
+          <p>Latest model smartphone</p>
+          <p>$699</p>
+          <button onclick="buyNow('Smartphone')" class="bg-blue-600 text-white p-2 rounded">Buy Now</button>
+        </div>
+        <div class="border p-4">
+          <h3 class="font-bold">Headphones</h3>
+          <p>Noise-cancelling headphones</p>
+          <p>$199</p>
+          <button onclick="buyNow('Headphones')" class="bg-blue-600 text-white p-2 rounded">Buy Now</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Register Section -->
+    <section id="register" class="section hidden">
+      <h2 class="text-2xl font-bold mb-4">Register</h2>
+      <form id="registerForm" class="space-y-4">
+        <div>
+          <label class="block">Name</label>
+          <input type="text" name="name" class="w-full p-2 border rounded" required>
+        </div>
+        <div>
+          <label class="block">Email</label>
+          <input type="email" name="email" class="w-full p-2 border rounded" required>
+        </div>
+        <div>
+          <label class="block">Password</label>
+          <input type="password" name="password" class="w-full p-2 border rounded" required>
+        </div>
+        <button type="submit" class="bg-blue-600 text-white p-2 rounded">Register</button>
+      </form>
+    </section>
+
+    <!-- Address Section -->
+    <section id="address" class="section hidden">
+      <h2 class="text-2xl font-bold mb-4">Shipping Address</h2>
+      <form id="addressForm" class="space-y-4">
+        <div>
+          <label class="block">Name</label>
+          <input type="text" name="name" class="w-full p-2 border rounded" required>
+        </div>
+        <div>
+          <label class="block">Email</label>
+          <input type="email" name="email" class="w-full p-2 border rounded" required>
+        </div>
+        <div>
+          <label class="block">Address</label>
+          <input type="text" name="address" class="w-full p-2 border rounded" required>
+        </div>
+        <div>
+          <label class="block">Phone</label>
+          <input type="tel" name="phone" class="w-full p-2 border rounded" required>
+        </div>
+        <button type="submit" class="bg-blue-600 text-white p-2 rounded">Proceed to Billing</button>
+      </form>
+    </section>
+
+    <!-- Billing Section -->
+    <section id="billing" class="section hidden">
+      <h2 class="text-2xl font-bold mb-4">Billing Details</h2>
+      <form id="billingForm" class="space-y-4">
+        <div>
+          <label class="block">Name</label>
+          <input type="text" name="name" class="w-full p-2 border rounded" required>
+        </div>
+        <div>
+          <label class="block">Email</label>
+          <input type="email" name="email" class="w-full p-2 border rounded" required>
+        </div>
+        <div>
+          <label class="block">Card Number</label>
+          <input type="text" name="cardNumber" class="w-full p-2 border rounded" required>
+        </div>
+        <div>
+          <label class="block">Expiry</label>
+          <input type="text" name="expiry" class="w-full p-2 border rounded" placeholder="MM/YY" required>
+        </div>
+        <div>
+          <label class="block">CVV</label>
+          <input type="text" name="cvv" class="w-full p-2 border rounded" required>
+        </div>
+        <button type="submit" class="bg-blue-600 text-white p-2 rounded">Place Order</button>
+      </form>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="section hidden">
+      <h2 class="text-2xl font-bold mb-4">Contact Us</h2>
+      <form id="contactForm" class="space-y-4">
+        <div>
+          <label class="block">Name</label>
+          <input type="text" name="name" class="w-full p-2 border rounded" required>
+        </div>
+        <div>
+          <label class="block">Email</label>
+          <input type="email" name="email" class="w-full p-2 border rounded" required>
+        </div>
+        <div>
+          <label class="block">Message</label>
+          <textarea name="message" class="w-full p-2 border rounded" required></textarea>
+        </div>
+        <button type="submit" class="bg-blue-600 text-white p-2 rounded">Submit</button>
+      </form>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="section hidden">
+      <h2 class="text-2xl font-bold mb-4">About Us</h2>
+      <p class="mb-4">We are a leading e-commerce platform offering a wide range of products to meet your needs.</p>
+    </section>
+
+    <!-- Offers Section -->
+    <section id="offers" class="section hidden">
+      <h2 class="text-2xl font-bold mb-4">Special Offers</h2>
+      <p class="mb-4">Check out our latest deals and discounts!</p>
+      <ul class="list-disc pl-5">
+        <li>10% off on Laptops</li>
+        <li>Buy 1 Get 1 Free on Headphones</li>
+        <li>Free shipping on orders over $50</li>
+      </ul>
+    </section>
+
+    <!-- Blogs Section -->
+    <section id="blogs" class="section hidden">
+      <h2 class="text-2xl font-bold mb-4">Blog Posts</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="border p-4">
+          <h3 class="font-bold">Tech Trends 2025</h3>
+          <p>Discover the latest in tech innovations.</p>
+        </div>
+        <div class="border p-4">
+          <h3 class="font-bold">Why Choose E-Shop?</h3>
+          <p>Learn about our commitment to quality.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Submitted Data Section -->
+    <section id="data" class="section hidden">
+      <h2 class="text-2xl font-bold mb-4">Submitted Data</h2>
+      <button onclick="loadSubmittedData()" class="bg-blue-600 text-white p-2 rounded mb-4">Load Submitted Data</button>
+      <table id="dataTable" class="w-full border-collapse hidden">
+        <thead>
+          <tr class="bg-gray-200">
+            <th class="border p-2">Name</th>
+            <th class="border p-2">Email</th>
+            <th class="border p-2">Password</th>
+            <th class="border p-2">Date</th>
+          </tr>
+        </thead>
+        <tbody id="dataBody"></tbody>
+      </table>
+      <div id="noData" class="hidden">No data available.</div>
+    </section>
+  </main>
+
   <script>
-    const base = 'https://ecommers-ula5.onrender.com/api';
     let selectedProduct = null;
 
-    function showSection(id) {
-      document.querySelectorAll('.section').forEach(el => el.classList.add('hidden'));
-      document.getElementById(id).classList.remove('hidden');
+    // Show/hide sections
+    function showSection(sectionId) {
+      document.querySelectorAll('.section').forEach(section => {
+        section.classList.add('hidden');
+      });
+      document.getElementById(sectionId).classList.remove('hidden');
     }
 
+    // Buy Now flow
     function buyNow(product) {
       selectedProduct = product;
       showSection('address');
     }
 
-    const handleSubmit = (formId, endpoint, successCallback) => {
-      const form = document.getElementById(formId);
-      form.addEventListener('submit', async e => {
-        e.preventDefault();
-        const data = Object.fromEntries(new FormData(form).entries());
-        try {
-          const res = await fetch(`${base}/${endpoint}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-          });
-          const result = await res.json();
-          if (result.success) {
-            alert(`${endpoint} submitted successfully!`);
-            form.reset();
-            if (successCallback) successCallback();
-          } else {
-            alert('Error: ' + (result.error || 'Unknown'));
-          }
-        } catch (err) {
-          alert('Request failed: ' + err.message);
+    // Register form submission
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = {
+        name: e.target.name.value,
+        email: e.target.email.value,
+        password: e.target.password.value,
+      };
+      try {
+        const res = await fetch('https://ecommers-ula5.onrender.com/api/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData),
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert('Registration successful!');
+          e.target.reset();
+          showSection('home');
+        } else {
+          alert('Error: ' + data.error);
         }
-      });
-    };
+      } catch (err) {
+        alert('Error: ' + err.message);
+      }
+    });
 
-    handleSubmit('registerForm', 'register', () => showSection('home'));
-    handleSubmit('addressForm', 'address', () => showSection('billing'));
-    handleSubmit('billingForm', 'billing', () => showSection('home'));
-    handleSubmit('contactForm', 'contact', () => showSection('home'));
+    // Address form submission
+    document.getElementById('addressForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = {
+        name: e.target.name.value,
+        email: e.target.email.value,
+        address: e.target.address.value,
+        phone: e.target.phone.value,
+      };
+      try {
+        const res = await fetch('https://ecommers-ula5.onrender.com/api/address', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData),
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert('Address saved successfully!');
+          e.target.reset();
+          showSection('billing');
+        } else {
+          alert('Error: ' + data.error);
+        }
+      } catch (err) {
+        alert('Error: ' + err.message);
+      }
+    });
 
+    // Billing form submission
+    document.getElementById('billingForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = {
+        name: e.target.name.value,
+        email: e.target.email.value,
+        cardNumber: e.target.cardNumber.value,
+        expiry: e.target.expiry.value,
+        cvv: e.target.cvv.value,
+      };
+      try {
+        const res = await fetch('https://ecommers-ula5.onrender.com/api/billing', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData),
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert(`Order for ${selectedProduct} placed successfully!`);
+          e.target.reset();
+          showSection('home');
+        } else {
+          alert('Error: ' + data.error);
+        }
+      } catch (err) {
+        alert('Error: ' + err.message);
+      }
+    });
+
+    // Contact form submission
+    document.getElementById('contactForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = {
+        name: e.target.name.value,
+        email: e.target.email.value,
+        message: e.target.message.value,
+      };
+      try {
+        const res = await fetch('https://ecommers-ula5.onrender.com/api/contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData),
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert('Contact form submitted successfully!');
+          e.target.reset();
+          showSection('home');
+        } else {
+          alert('Error: ' + data.error);
+        }
+      } catch (err) {
+        alert('Error: ' + err.message);
+      }
+    });
+
+    // Load submitted data
     async function loadSubmittedData() {
       try {
-        const res = await fetch(`${base}/get-register`);
+        const res = await fetch('https://ecommers-ula5.onrender.com/api/get-register');
         const data = await res.json();
         const table = document.getElementById('dataTable');
-        const tbody = document.getElementById('dataBody');
-        const noData = document.getElementById('noData');
-        tbody.innerHTML = '';
-        if (Array.isArray(data) && data.length) {
+        const tableBody = document.getElementById('dataBody');
+        const noDataDiv = document.getElementById('noData');
+        tableBody.innerHTML = '';
+        if (data && data.length > 0) {
           table.classList.remove('hidden');
-          noData.classList.add('hidden');
+          noDataDiv.classList.add('hidden');
           data.forEach(row => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
@@ -73,17 +348,18 @@
               <td class="border p-2">${row[2] || ''}</td>
               <td class="border p-2">${row[3] || ''}</td>
             `;
-            tbody.appendChild(tr);
+            tableBody.appendChild(tr);
           });
         } else {
           table.classList.add('hidden');
-          noData.classList.remove('hidden');
+          noDataDiv.classList.remove('hidden');
         }
       } catch (err) {
         alert('Error loading data: ' + err.message);
       }
     }
 
+    // Show home section by default
     showSection('home');
   </script>
 </body>
