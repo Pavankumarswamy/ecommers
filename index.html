@@ -226,7 +226,7 @@
         password: e.target.password.value,
       };
       try {
-        const res = await fetch('http://localhost:3000/api/register', {
+        const res = await fetch('https://ecommers-ula5.onrender.com/api/register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(formData),
@@ -254,7 +254,7 @@
         phone: e.target.phone.value,
       };
       try {
-        const res = await fetch('http://localhost:3000/api/address', {
+        const res = await fetch('https://ecommers-ula5.onrender.com/api/address', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(formData),
@@ -283,7 +283,7 @@
         cvv: e.target.cvv.value,
       };
       try {
-        const res = await fetch('http://localhost:3000/api/billing', {
+        const res = await fetch('https://ecommers-ula5.onrender.com/api/billing', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(formData),
@@ -310,7 +310,7 @@
         message: e.target.message.value,
       };
       try {
-        const res = await fetch('http://localhost:3000/api/contact', {
+        const res = await fetch('https://ecommers-ula5.onrender.com/api/contact', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(formData),
@@ -331,7 +331,7 @@
     // Load submitted data
     async function loadSubmittedData() {
       try {
-        const res = await fetch('http://localhost:3000/api/get-register');
+        const res = await fetch('https://ecommers-ula5.onrender.com/api/get-register');
         const data = await res.json();
         const table = document.getElementById('dataTable');
         const tableBody = document.getElementById('dataBody');
