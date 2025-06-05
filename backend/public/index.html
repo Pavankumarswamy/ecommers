@@ -200,9 +200,9 @@
     </section>
   </main>
 
-  <script>
+ <script>
   let selectedProduct = null;
-  const API_BASE_URL = window.location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://your-app-name.onrender.com';
+  const API_BASE_URL = window.location.hostname === 'localhost' ? 'http://localhost:3000' : '';
 
   function showSection(sectionId) {
     document.querySelectorAll('.section').forEach(section => {
@@ -335,9 +335,7 @@
         table.classList.remove('hidden');
         noDataDiv.classList.add('hidden');
         data.forEach(row => {
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td class="border p-2">${row[0] || ''}</td>
+          unbroken class="border p-2">${row[0] || ''}</td>
             <td class="border p-2">${row[1] || ''}</td>
             <td class="border p-2">${row[2] || ''}</td>
             <td class="border p-2">${row[3] || ''}</td>
