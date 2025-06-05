@@ -1,12 +1,11 @@
 const express = require('express');
 const cors = require('cors');
-const bodyParser = require('body-parser');
 const { google } = require('googleapis');
 const path = require('path');
 const app = express();
-const PORT = process.env.PORT || 3000);
+const PORT = process.env.PORT || 3000;
 
-// Validate environment variables at startup
+// Validate environment variables
 const GOOGLE_CREDENTIALS = process.env.GOOGLE_APPLICATION_CREDENTIALS;
 const SPREADSHEET_ID = process.env.SPREADSHEET_ID || '1K0SHF2Lmm7iFNwGTAZ4RqvM0vFfsu9j1EXNpxH0CYu8';
 if (!GOOGLE_CREDENTIALS) {
@@ -16,15 +15,18 @@ if (!SPREADSHEET_ID) {
   throw new Error('Missing SPREADSHEET_ID environment variable');
 }
 
-// Serve frontend
-app.use(cors());
-app.use(express.json()); // Note: Replaced bodyParser.json() with express.json() as body-parser is deprecated
+app.use(cors({
+  origin: ['https://ecommers-ula5.onrender.com', 'http://localhost:3000'],
+  methods: ['GET', 'POST'],
+  allowedHeaders: ['Content-Type'],
+}));
+app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Authenticate with Google using environment variable credentials
+// Authenticate with Google
 const auth = new google.auth.GoogleAuth({
   credentials: JSON.parse(GOOGLE_CREDENTIALS),
-  scopes: ['https://www.googleapis.com/auth/spreadsheets']
+  scopes: ['https://www.googleapis.com/auth/spreadsheets'],
 });
 
 // Check or create sheet
@@ -39,10 +41,10 @@ async function ensureSheetExists(sheets, name) {
       spreadsheetId: SPREADSHEET_ID,
       resource: {
         requests: [{ addSheet: { properties: { title: name } } }],
-      }
+      },
     });
-  })
-};
+  }
+}
 
 // Append values
 async function appendToSheet(sheet, values) {
@@ -53,7 +55,7 @@ async function appendToSheet(sheet, values) {
     spreadsheetId: SPREADSHEET_ID,
     range: `${sheet}!A1`,
     valueInputOption: 'USER_ENTERED',
-    resource: { values: [values] }
+    resource: { values: [values] },
   });
 }
 
@@ -67,8 +69,8 @@ app.post('/api/register', async (req, res) => {
     await appendToSheet('Register', [name, email, password, new Date().toISOString()]);
     res.json({ success: true });
   } catch (error) {
-    console.error('Error in /api/register:', error);
-    res.status(500).json({ error: error.message });
+    console.error('Error in /api/register:', error.message, error.stack);
+    res.status(500).json({ error: `Internal server error: ${error.message}` });
   }
 });
 
@@ -81,8 +83,8 @@ app.post('/api/address', async (req, res) => {
     await appendToSheet('Address', [name, email, address, phone, new Date().toISOString()]);
     res.json({ success: true });
   } catch (error) {
-    console.error('Error in /api/address:', error);
-    res.status(500).json({ error: error.message });
+    console.error('Error in /api/address:', error.message, error.stack);
+    res.status(500).json({ error: `Internal server error: ${error.message}` });
   }
 });
 
@@ -95,8 +97,8 @@ app.post('/api/billing', async (req, res) => {
     await appendToSheet('Billing', [name, email, cardNumber, expiry, cvv, new Date().toISOString()]);
     res.json({ success: true });
   } catch (error) {
-    console.error('Error in /api/billing:', error);
-    res.status(500).json({ error: error.message });
+    console.error('Error in /api/billing:', error.message, error.stack);
+    res.status(500).json({ error: `Internal server error: ${error.message}` });
   }
 });
 
@@ -106,11 +108,11 @@ app.post('/api/contact', async (req, res) => {
     return res.status(400).json({ error: 'All fields required' });
   }
   try {
-    await appendToSheet('Contact', [name, email, message, new Date().toISOString()));
+    await appendToSheet('Contact', [name, email, message, new Date().toISOString()]);
     res.json({ success: true });
   } catch (error) {
-    console.error('Error in /api/contact:', error);
-    res.status(500).json({ error: error.message });
+    console.error('Error in /api/contact:', error.message, error.stack);
+    res.status(500).json({ error: `Internal server error: ${error.message}` });
   }
 });
 
@@ -122,10 +124,10 @@ app.get('/api/get-register', async (req, res) => {
       spreadsheetId: SPREADSHEET_ID,
       range: 'Register!A1:D1000',
     });
-    res.json(response.data.values || []));
+    res.json(response.data.values || []);
   } catch (error) {
-    console.error('Error in /api/get-register:', error);
-    res.status(500).json({ error: error.message });
+    console.error('Error in /api/get-register:', error.message, error.stack);
+    res.status(500).json({ error: `Internal server error: ${error.message}` });
   }
 });
 
@@ -148,17 +150,15 @@ app.post('/api/login', async (req, res) => {
     }
     res.json({ success: true, user: { name: user[0], email: user[1] } });
   } catch (error) {
-    console.error('Error in /api/login:', error);
-    res.status(500).json({ error: error.message });
+    console.error('Error in /api/login:', error.message, error.stack);
+    res.status(500).json({ error: `Internal server error: ${error.message}` });
   }
 });
 
-// Serve frontend for any unknown route
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Start server
 app.listen(PORT, () => {
-  console.log(`✅ Server running on port ${PORT}`;
+  console.log(`✅ Server running on port ${PORT}`);
 });
