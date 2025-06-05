@@ -13,7 +13,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Authenticate with Google using service account
 const auth = new google.auth.GoogleAuth({
-  credentials: require('./cetmock-app-7d6b40681a58.json'),
+  credentials: require('./service_account.json'),
   scopes: ['https://www.googleapis.com/auth/spreadsheets']
 });
 
