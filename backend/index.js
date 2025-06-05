@@ -23,7 +23,6 @@ app.use(cors({
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-
 // Authenticate with Google
 const auth = new google.auth.GoogleAuth({
   credentials: JSON.parse(GOOGLE_CREDENTIALS),
@@ -32,32 +31,44 @@ const auth = new google.auth.GoogleAuth({
 
 // Check or create sheet
 async function ensureSheetExists(sheets, name) {
-  const res = await sheets.spreadsheets.get({
-    spreadsheetId: SPREADSHEET_ID,
-    fields: 'sheets.properties.title',
-  });
-  const existing = res.data.sheets.map(s => s.properties.title);
-  if (!existing.includes(name)) {
-    await sheets.spreadsheets.batchUpdate({
+  try {
+    const res = await sheets.spreadsheets.get({
       spreadsheetId: SPREADSHEET_ID,
-      resource: {
-        requests: [{ addSheet: { properties: { title: name } } }],
-      },
+      fields: 'sheets.properties.title',
     });
+    const existing = res.data.sheets.map(s => s.properties.title);
+    if (!existing.includes(name)) {
+      await sheets.spreadsheets.batchUpdate({
+        spreadsheetId: SPREADSHEET_ID,
+        resource: {
+          requests: [{ addSheet: { properties: { title: name } } }],
+        },
+      });
+      console.log(`Created sheet: ${name}`);
+    }
+  } catch (error) {
+    console.error(`Error ensuring sheet ${name} exists:`, error.message, error.stack);
+    throw error;
   }
 }
 
 // Append values
 async function appendToSheet(sheet, values) {
-  const client = await auth.getClient();
-  const sheets = google.sheets({ version: 'v4', auth: client });
-  await ensureSheetExists(sheets, sheet);
-  await sheets.spreadsheets.values.append({
-    spreadsheetId: SPREADSHEET_ID,
-    range: `${sheet}!A1`,
-    valueInputOption: 'USER_ENTERED',
-    resource: { values: [values] },
-  });
+  try {
+    const client = await auth.getClient();
+    const sheets = google.sheets({ version: 'v4', auth: client });
+    await ensureSheetExists(sheets, sheet);
+    await sheets.spreadsheets.values.append({
+      spreadsheetId: SPREADSHEET_ID,
+      range: `${sheet}!A1`,
+      valueInputOption: 'USER_ENTERED',
+      resource: { values: [values] },
+    });
+    console.log(`Successfully appended to sheet: ${sheet}`);
+  } catch (error) {
+    console.error(`Error appending to sheet ${sheet}:`, error.message, error.stack);
+    throw error;
+  }
 }
 
 // Routes
