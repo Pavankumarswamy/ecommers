@@ -4,20 +4,28 @@ const bodyParser = require('body-parser');
 const { google } = require('googleapis');
 const path = require('path');
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000);
+
+// Validate environment variables at startup
+const GOOGLE_CREDENTIALS = process.env.GOOGLE_APPLICATION_CREDENTIALS;
+const SPREADSHEET_ID = process.env.SPREADSHEET_ID || '1K0SHF2Lmm7iFNwGTAZ4RqvM0vFfsu9j1EXNpxH0CYu8';
+if (!GOOGLE_CREDENTIALS) {
+  throw new Error('Missing GOOGLE_APPLICATION_CREDENTIALS environment variable');
+}
+if (!SPREADSHEET_ID) {
+  throw new Error('Missing SPREADSHEET_ID environment variable');
+}
 
 // Serve frontend
 app.use(cors());
-app.use(bodyParser.json());
+app.use(express.json()); // Note: Replaced bodyParser.json() with express.json() as body-parser is deprecated
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Authenticate with Google using service account
+// Authenticate with Google using environment variable credentials
 const auth = new google.auth.GoogleAuth({
-  credentials: require('./service_account.json'),
+  credentials: JSON.parse(GOOGLE_CREDENTIALS),
   scopes: ['https://www.googleapis.com/auth/spreadsheets']
 });
-
-const SPREADSHEET_ID = '1K0SHF2Lmm7iFNwGTAZ4RqvM0vFfsu9j1EXNpxH0CYu8';
 
 // Check or create sheet
 async function ensureSheetExists(sheets, name) {
@@ -33,8 +41,8 @@ async function ensureSheetExists(sheets, name) {
         requests: [{ addSheet: { properties: { title: name } } }],
       }
     });
-  }
-}
+  })
+};
 
 // Append values
 async function appendToSheet(sheet, values) {
@@ -52,49 +60,57 @@ async function appendToSheet(sheet, values) {
 // Routes
 app.post('/api/register', async (req, res) => {
   const { name, email, password } = req.body;
-  if (!name || !email || !password)
+  if (!name || !email || !password) {
     return res.status(400).json({ error: 'All fields required' });
+  }
   try {
     await appendToSheet('Register', [name, email, password, new Date().toISOString()]);
     res.json({ success: true });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+  } catch (error) {
+    console.error('Error in /api/register:', error);
+    res.status(500).json({ error: error.message });
   }
 });
 
 app.post('/api/address', async (req, res) => {
   const { name, email, address, phone } = req.body;
-  if (!name || !email || !address || !phone)
+  if (!name || !email || !address || !phone) {
     return res.status(400).json({ error: 'All fields required' });
+  }
   try {
     await appendToSheet('Address', [name, email, address, phone, new Date().toISOString()]);
     res.json({ success: true });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+  } catch (error) {
+    console.error('Error in /api/address:', error);
+    res.status(500).json({ error: error.message });
   }
 });
 
 app.post('/api/billing', async (req, res) => {
   const { name, email, cardNumber, expiry, cvv } = req.body;
-  if (!name || !email || !cardNumber || !expiry || !cvv)
+  if (!name || !email || !cardNumber || !expiry || !cvv) {
     return res.status(400).json({ error: 'All fields required' });
+  }
   try {
     await appendToSheet('Billing', [name, email, cardNumber, expiry, cvv, new Date().toISOString()]);
     res.json({ success: true });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+  } catch (error) {
+    console.error('Error in /api/billing:', error);
+    res.status(500).json({ error: error.message });
   }
 });
 
 app.post('/api/contact', async (req, res) => {
   const { name, email, message } = req.body;
-  if (!name || !email || !message)
+  if (!name || !email || !message) {
     return res.status(400).json({ error: 'All fields required' });
+  }
   try {
-    await appendToSheet('Contact', [name, email, message, new Date().toISOString()]);
+    await appendToSheet('Contact', [name, email, message, new Date().toISOString()));
     res.json({ success: true });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+  } catch (error) {
+    console.error('Error in /api/contact:', error);
+    res.status(500).json({ error: error.message });
   }
 });
 
@@ -106,16 +122,18 @@ app.get('/api/get-register', async (req, res) => {
       spreadsheetId: SPREADSHEET_ID,
       range: 'Register!A1:D1000',
     });
-    res.json(response.data.values || []);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.json(response.data.values || []));
+  } catch (error) {
+    console.error('Error in /api/get-register:', error);
+    res.status(500).json({ error: error.message });
   }
 });
 
 app.post('/api/login', async (req, res) => {
   const { email, password } = req.body;
-  if (!email || !password)
+  if (!email || !password) {
     return res.status(400).json({ error: 'Email and password are required' });
+  }
   try {
     const client = await auth.getClient();
     const sheets = google.sheets({ version: 'v4', auth: client });
@@ -125,10 +143,13 @@ app.post('/api/login', async (req, res) => {
     });
     const users = response.data.values || [];
     const user = users.find(row => row[1] === email && row[2] === password);
-    if (!user) return res.status(401).json({ error: 'Invalid email or password' });
+    if (!user) {
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
     res.json({ success: true, user: { name: user[0], email: user[1] } });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+  } catch (error) {
+    console.error('Error in /api/login:', error);
+    res.status(500).json({ error: error.message });
   }
 });
 
