@@ -201,166 +201,159 @@
   </main>
 
   <script>
-    let selectedProduct = null;
+  let selectedProduct = null;
+  const API_BASE_URL = window.location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://your-app-name.onrender.com';
 
-    // Show/hide sections
-    function showSection(sectionId) {
-      document.querySelectorAll('.section').forEach(section => {
-        section.classList.add('hidden');
+  function showSection(sectionId) {
+    document.querySelectorAll('.section').forEach(section => {
+      section.classList.add('hidden');
+    });
+    document.getElementById(sectionId).classList.remove('hidden');
+  }
+
+  function buyNow(product) {
+    selectedProduct = product;
+    showSection('address');
+  }
+
+  document.getElementById('registerForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = {
+      name: e.target.name.value,
+      email: e.target.email.value,
+      password: e.target.password.value,
+    };
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
       });
-      document.getElementById(sectionId).classList.remove('hidden');
+      const data = await res.json();
+      if (data.success) {
+        alert('Registration successful!');
+        e.target.reset();
+        showSection('home');
+      } else {
+        alert('Error: ' + data.error);
+      }
+    } catch (err) {
+      alert('Error: ' + err.message);
     }
+  });
 
-    // Buy Now flow
-    function buyNow(product) {
-      selectedProduct = product;
-      showSection('address');
+  document.getElementById('addressForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = {
+      name: e.target.name.value,
+      email: e.target.email.value,
+      address: e.target.address.value,
+      phone: e.target.phone.value,
+    };
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/address`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert('Address saved successfully!');
+        e.target.reset();
+        showSection('billing');
+      } else {
+        alert('Error: ' + data.error);
+      }
+    } catch (err) {
+      alert('Error: ' + err.message);
     }
+  });
 
-    // Register form submission
-    document.getElementById('registerForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const formData = {
-        name: e.target.name.value,
-        email: e.target.email.value,
-        password: e.target.password.value,
-      };
-      try {
-        const res = await fetch('/api/register', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(formData),
-        });
-        const data = await res.json();
-        if (data.success) {
-          alert('Registration successful!');
-          e.target.reset();
-          showSection('home');
-        } else {
-          alert('Error: ' + data.error);
-        }
-      } catch (err) {
-        alert('Error: ' + err.message);
+  document.getElementById('billingForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = {
+      name: e.target.name.value,
+      email: e.target.email.value,
+      cardNumber: e.target.cardNumber.value,
+      expiry: e.target.expiry.value,
+      cvv: e.target.cvv.value,
+    };
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/billing`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert(`Order for ${selectedProduct} placed successfully!`);
+        e.target.reset();
+        showSection('home');
+      } else {
+        alert('Error: ' + data.error);
       }
-    });
-
-    // Address form submission
-    document.getElementById('addressForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const formData = {
-        name: e.target.name.value,
-        email: e.target.email.value,
-        address: e.target.address.value,
-        phone: e.target.phone.value,
-      };
-      try {
-        const res = await fetch('/api/address', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(formData),
-        });
-        const data = await res.json();
-        if (data.success) {
-          alert('Address saved successfully!');
-          e.target.reset();
-          showSection('billing');
-        } else {
-          alert('Error: ' + data.error);
-        }
-      } catch (err) {
-        alert('Error: ' + err.message);
-      }
-    });
-
-    // Billing form submission
-    document.getElementById('billingForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const formData = {
-        name: e.target.name.value,
-        email: e.target.email.value,
-        cardNumber: e.target.cardNumber.value,
-        expiry: e.target.expiry.value,
-        cvv: e.target.cvv.value,
-      };
-      try {
-        const res = await fetch('/api/billing', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(formData),
-        });
-        const data = await res.json();
-        if (data.success) {
-          alert(`Order for ${selectedProduct} placed successfully!`);
-          e.target.reset();
-          showSection('home');
-        } else {
-          alert('Error: ' + data.error);
-        }
-      } catch (err) {
-        alert('Error: ' + err.message);
-      }
-    });
-
-    // Contact form submission
-    document.getElementById('contactForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const formData = {
-        name: e.target.name.value,
-        email: e.target.email.value,
-        message: e.target.message.value,
-      };
-      try {
-        const res = await fetch('/api/contact', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(formData),
-        });
-        const data = await res.json();
-        if (data.success) {
-          alert('Contact form submitted successfully!');
-          e.target.reset();
-          showSection('home');
-        } else {
-          alert('Error: ' + data.error);
-        }
-      } catch (err) {
-        alert('Error: ' + err.message);
-      }
-    });
-
-    // Load submitted data
-    async function loadSubmittedData() {
-      try {
-        const res = await fetch('/api/get-register');
-        const data = await res.json();
-        const table = document.getElementById('dataTable');
-        const tableBody = document.getElementById('dataBody');
-        const noDataDiv = document.getElementById('noData');
-        tableBody.innerHTML = '';
-        if (data && data.length > 0) {
-          table.classList.remove('hidden');
-          noDataDiv.classList.add('hidden');
-          data.forEach(row => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-              <td class="border p-2">${row[0] || ''}</td>
-              <td class="border p-2">${row[1] || ''}</td>
-              <td class="border p-2">${row[2] || ''}</td>
-              <td class="border p-2">${row[3] || ''}</td>
-            `;
-            tableBody.appendChild(tr);
-          });
-        } else {
-          table.classList.add('hidden');
-          noDataDiv.classList.remove('hidden');
-        }
-      } catch (err) {
-        alert('Error loading data: ' + err.message);
-      }
+    } catch (err) {
+      alert('Error: ' + err.message);
     }
+  });
 
-    // Show home section by default
-    showSection('home');
-  </script>
+  document.getElementById('contactForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = {
+      name: e.target.name.value,
+      email: e.target.email.value,
+      message: e.target.message.value,
+    };
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/contact`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert('Contact form submitted successfully!');
+        e.target.reset();
+        showSection('home');
+      } else {
+        alert('Error: ' + data.error);
+      }
+    } catch (err) {
+      alert('Error: ' + err.message);
+    }
+  });
+
+  async function loadSubmittedData() {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/get-register`);
+      const data = await res.json();
+      const table = document.getElementById('dataTable');
+      const tableBody = document.getElementById('dataBody');
+      const noDataDiv = document.getElementById('noData');
+      tableBody.innerHTML = '';
+      if (data && data.length > 0) {
+        table.classList.remove('hidden');
+        noDataDiv.classList.add('hidden');
+        data.forEach(row => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td class="border p-2">${row[0] || ''}</td>
+            <td class="border p-2">${row[1] || ''}</td>
+            <td class="border p-2">${row[2] || ''}</td>
+            <td class="border p-2">${row[3] || ''}</td>
+          `;
+          tableBody.appendChild(tr);
+        });
+      } else {
+        table.classList.add('hidden');
+        noDataDiv.classList.remove('hidden');
+      }
+    } catch (err) {
+      alert('Error loading data: ' + err.message);
+    }
+  }
+
+  showSection('home');
+</script>
 </body>
 </html>
